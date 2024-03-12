@@ -1,0 +1,4 @@
+[tool.ruff]
+extend-select = ["C4", "SIM", "TCH"]
+ignore = ["403", "405"]
+show-fixes = true

@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Model &mdash; EMS 2024 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=6fefd858"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Controller" href="controller.html" />
+    <link rel="prev" title="Main" href="main.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            EMS
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="main.html">Main</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Model</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#ems_prog.model.EmsModel"><code class="docutils literal notranslate"><span class="pre">EmsModel</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#ems_prog.model.EmsModel.db_path"><code class="docutils literal notranslate"><span class="pre">EmsModel.db_path</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ems_prog.model.EmsModel.con"><code class="docutils literal notranslate"><span class="pre">EmsModel.con</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ems_prog.model.EmsModel.cursor"><code class="docutils literal notranslate"><span class="pre">EmsModel.cursor</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ems_prog.model.EmsModel.observers"><code class="docutils literal notranslate"><span class="pre">EmsModel.observers</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ems_prog.model.EmsModel.get_observers"><code class="docutils literal notranslate"><span class="pre">EmsModel.get_observers()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ems_prog.model.EmsModel.add_observer"><code class="docutils literal notranslate"><span class="pre">EmsModel.add_observer()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ems_prog.model.EmsModel.remove_observer"><code class="docutils literal notranslate"><span class="pre">EmsModel.remove_observer()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ems_prog.model.EmsModel.notify_observers"><code class="docutils literal notranslate"><span class="pre">EmsModel.notify_observers()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ems_prog.model.EmsModel.update_data"><code class="docutils literal notranslate"><span class="pre">EmsModel.update_data()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ems_prog.model.EmsModel.create_table"><code class="docutils literal notranslate"><span class="pre">EmsModel.create_table()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ems_prog.model.EmsModel.insert_employee"><code class="docutils literal notranslate"><span class="pre">EmsModel.insert_employee()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ems_prog.model.EmsModel.select_employee"><code class="docutils literal notranslate"><span class="pre">EmsModel.select_employee()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ems_prog.model.EmsModel.update_employee"><code class="docutils literal notranslate"><span class="pre">EmsModel.update_employee()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ems_prog.model.EmsModel.delete_employee"><code class="docutils literal notranslate"><span class="pre">EmsModel.delete_employee()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ems_prog.model.EmsModel.delete_table"><code class="docutils literal notranslate"><span class="pre">EmsModel.delete_table()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="controller.html">Controller</a></li>
+<li class="toctree-l1"><a class="reference internal" href="view.html">View</a></li>
+<li class="toctree-l1"><a class="reference internal" href="decorators.html">Decorators</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">EMS</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Model</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/model.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-ems_prog.model">
+<span id="model"></span><h1>Model<a class="headerlink" href="#module-ems_prog.model" title="Link to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="ems_prog.model.EmsModel">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ems_prog.model.</span></span><span class="sig-name descname"><span class="pre">EmsModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">db_path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ems_prog/model.html#EmsModel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ems_prog.model.EmsModel" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Manages the interaction with the SQLite database for employee information.</p>
+<p>This class provides an interface for database operations and implements the Observer pattern
+to notify registered observers about changes in the data model.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ems_prog.model.EmsModel.db_path">
+<span class="sig-name descname"><span class="pre">db_path</span></span><a class="headerlink" href="#ems_prog.model.EmsModel.db_path" title="Link to this definition"></a></dt>
+<dd><p>Path to the SQLite database file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ems_prog.model.EmsModel.con">
+<span class="sig-name descname"><span class="pre">con</span></span><a class="headerlink" href="#ems_prog.model.EmsModel.con" title="Link to this definition"></a></dt>
+<dd><p>Active database connection object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>sqlite3.Connection</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ems_prog.model.EmsModel.cursor">
+<span class="sig-name descname"><span class="pre">cursor</span></span><a class="headerlink" href="#ems_prog.model.EmsModel.cursor" title="Link to this definition"></a></dt>
+<dd><p>Cursor object for executing SQL commands.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>sqlite3.Cursor</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ems_prog.model.EmsModel.observers">
+<span class="sig-name descname"><span class="pre">observers</span></span><a class="headerlink" href="#ems_prog.model.EmsModel.observers" title="Link to this definition"></a></dt>
+<dd><p>List of observer objects to be notified of changes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ems_prog.model.EmsModel.get_observers">
+<span class="sig-name descname"><span class="pre">get_observers</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ems_prog/model.html#EmsModel.get_observers"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ems_prog.model.EmsModel.get_observers" title="Link to this definition"></a></dt>
+<dd><p>Returns the list of observers.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ems_prog.model.EmsModel.add_observer">
+<span class="sig-name descname"><span class="pre">add_observer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">observer</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ems_prog/model.html#EmsModel.add_observer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ems_prog.model.EmsModel.add_observer" title="Link to this definition"></a></dt>
+<dd><p>Adds an observer to the list if it’s not already present.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>observer</strong> (<em>object</em>) – The observer object to be added to the list.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ems_prog.model.EmsModel.remove_observer">
+<span class="sig-name descname"><span class="pre">remove_observer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">observer</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ems_prog/model.html#EmsModel.remove_observer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ems_prog.model.EmsModel.remove_observer" title="Link to this definition"></a></dt>
+<dd><p>Removes an observer from the list.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>observer</strong> (<em>object</em>) – The observer object to be removed from the list.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ems_prog.model.EmsModel.notify_observers">
+<span class="sig-name descname"><span class="pre">notify_observers</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ems_prog/model.html#EmsModel.notify_observers"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ems_prog.model.EmsModel.notify_observers" title="Link to this definition"></a></dt>
+<dd><p>Notifies all registered observers of a change in the data model.</p>
+<p>Each observer’s update method is called to handle the notification.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ems_prog.model.EmsModel.update_data">
+<span class="sig-name descname"><span class="pre">update_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ems_prog/model.html#EmsModel.update_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ems_prog.model.EmsModel.update_data" title="Link to this definition"></a></dt>
+<dd><p>Simulates a change: Modifies an existing record or adds a new one.</p>
+<p>Notifies the Observer.</p>
+<p>Logs the changes made.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ems_prog.model.EmsModel.create_table">
+<span class="sig-name descname"><span class="pre">create_table</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ems_prog/model.html#EmsModel.create_table"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ems_prog.model.EmsModel.create_table" title="Link to this definition"></a></dt>
+<dd><p>Creates the ‘Empleados’ table in the database if it does not exist.</p>
+<p>Raises sqlite3.Error if an error occurs while creating the table.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ems_prog.model.EmsModel.insert_employee">
+<span class="sig-name descname"><span class="pre">insert_employee</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ems_prog/model.html#EmsModel.insert_employee"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ems_prog.model.EmsModel.insert_employee" title="Link to this definition"></a></dt>
+<dd><p>Inserts a new employee into the database.</p>
+<p>Raises sqlite3.Error if an error occurs while inserting the data.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ems_prog.model.EmsModel.select_employee">
+<span class="sig-name descname"><span class="pre">select_employee</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ems_prog/model.html#EmsModel.select_employee"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ems_prog.model.EmsModel.select_employee" title="Link to this definition"></a></dt>
+<dd><p>Selects and returns all employees from the database.</p>
+<p>Raises sqlite3.Error if an error occurs while selecting the data.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ems_prog.model.EmsModel.update_employee">
+<span class="sig-name descname"><span class="pre">update_employee</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ems_prog/model.html#EmsModel.update_employee"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ems_prog.model.EmsModel.update_employee" title="Link to this definition"></a></dt>
+<dd><p>Updates the data of an employee in the database.</p>
+<p>Raises sqlite3.Error if an error occurs while updating the data.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ems_prog.model.EmsModel.delete_employee">
+<span class="sig-name descname"><span class="pre">delete_employee</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">employee_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ems_prog/model.html#EmsModel.delete_employee"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ems_prog.model.EmsModel.delete_employee" title="Link to this definition"></a></dt>
+<dd><p>Deletes an employee from the database.</p>
+<p>Raises sqlite3.Error if an error occurs while deleting the employee.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ems_prog.model.EmsModel.delete_table">
+<span class="sig-name descname"><span class="pre">delete_table</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ems_prog/model.html#EmsModel.delete_table"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ems_prog.model.EmsModel.delete_table" title="Link to this definition"></a></dt>
+<dd><p>Deletes the ‘Empleados’ table from the database.</p>
+<p>Raises sqlite3.Error if an error occurs while deleting the table.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="main.html" class="btn btn-neutral float-left" title="Main" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="controller.html" class="btn btn-neutral float-right" title="Controller" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Mabazz.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ems_prog.view &mdash; EMS 2024 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=6fefd858"></script>
+        <script src="../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            EMS
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../main.html">Main</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../model.html">Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../controller.html">Controller</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../view.html">View</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../decorators.html">Decorators</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">EMS</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">ems_prog.view</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for ems_prog.view</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">sqlite3</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">tkinter</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">tkinter</span> <span class="kn">import</span> <span class="n">ttk</span><span class="p">,</span> <span class="n">messagebox</span>
+<span class="kn">from</span> <span class="nn">main</span> <span class="kn">import</span> <span class="n">send_data</span>
+
+
+<div class="viewcode-block" id="EmsView">
+<a class="viewcode-back" href="../../view.html#ems_prog.view.EmsView">[docs]</a>
+<span class="k">class</span> <span class="nc">EmsView</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    View for the employee management application&#39;s graphical user interface.</span>
+
+<span class="sd">    This class provides the interface elements for user interaction with the employee database,</span>
+<span class="sd">    including displaying, adding, updating, and deleting employee records.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        root (tkinter.Tk): The main window of the application.</span>
+<span class="sd">        model (EmpleadosModel): The data model for employee information.</span>
+<span class="sd">        controller (EmpleadosController): The controller to handle actions in the view.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1">#Constants</span>
+    <span class="n">DATA_FRAME_TITLE</span> <span class="o">=</span> <span class="s2">&quot;Data upload&quot;</span>
+    <span class="n">BUTTON_FRAME_TITLE</span> <span class="o">=</span> <span class="s2">&quot;Records&quot;</span>
+    <span class="n">CONFIRM_DELETE_ALL</span> <span class="o">=</span> <span class="s2">&quot;DB will be erased.</span><span class="se">\n</span><span class="s2">Press Yes to continue.&quot;</span>
+    <span class="n">CONFIRM_DELETE_ROW</span> <span class="o">=</span> <span class="s2">&quot;Selected record will be erased.</span><span class="se">\n</span><span class="s2">Press Yes to continue.&quot;</span>
+
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">controller</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializes the EmpleadosView with the main application window, data model, and controller.</span>
+
+<span class="sd">        Registers the view as an observer to the model to receive updates on data changes.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">            root (tkinter.Tk): The main window of the application.</span>
+<span class="sd">            model (EmpleadosModel): The data model for employee information.</span>
+<span class="sd">            controller (EmpleadosController): The controller to handle actions in the view.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">root</span> <span class="o">=</span> <span class="n">root</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">model</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">controller</span> <span class="o">=</span> <span class="n">controller</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">add_observer</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+        <span class="c1"># Create main window</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Empleados Database&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">geometry</span><span class="p">(</span><span class="s2">&quot;1000x500&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Add syle</span>
+        <span class="n">style</span> <span class="o">=</span> <span class="n">ttk</span><span class="o">.</span><span class="n">Style</span><span class="p">()</span>
+        <span class="n">style</span><span class="o">.</span><span class="n">theme_use</span><span class="p">(</span><span class="s1">&#39;default&#39;</span><span class="p">)</span>
+        <span class="n">style</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span><span class="s2">&quot;Treeview&quot;</span><span class="p">,</span> <span class="n">background</span><span class="o">=</span><span class="s2">&quot;white&quot;</span><span class="p">,</span> <span class="n">foreground</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="n">rowheight</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span> <span class="n">fieldbackround</span><span class="o">=</span><span class="s2">&quot;#D3D3D3&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Change selected color</span>
+        <span class="n">style</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="s2">&quot;Treeview&quot;</span><span class="p">,</span> <span class="n">background</span><span class="o">=</span><span class="p">[(</span><span class="s2">&quot;selected&quot;</span><span class="p">,</span> <span class="s2">&quot;aquamarine4&quot;</span><span class="p">)])</span>
+
+        <span class="c1"># Create Treeview frame</span>
+        <span class="n">tree_frame</span> <span class="o">=</span> <span class="n">Frame</span><span class="p">(</span><span class="n">root</span><span class="p">)</span>
+        <span class="n">tree_frame</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="n">pady</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="c1"># Create scroll-bar</span>
+        <span class="n">tree_scroll</span> <span class="o">=</span> <span class="n">Scrollbar</span><span class="p">(</span><span class="n">tree_frame</span><span class="p">)</span>
+        <span class="n">tree_scroll</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="n">side</span><span class="o">=</span><span class="n">RIGHT</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="n">Y</span><span class="p">)</span>
+
+        <span class="c1"># Create Treeview</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">my_tree</span> <span class="o">=</span> <span class="n">ttk</span><span class="o">.</span><span class="n">Treeview</span><span class="p">(</span><span class="n">tree_frame</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mi">8</span><span class="p">),</span> <span class="n">yscrollcommand</span><span class="o">=</span><span class="n">tree_scroll</span><span class="o">.</span><span class="n">set</span><span class="p">,</span> <span class="n">selectmode</span><span class="o">=</span><span class="s2">&quot;extended&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">my_tree</span><span class="o">.</span><span class="n">pack</span><span class="p">()</span>
+
+        <span class="c1"># Get row data to see it on lables</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">my_tree</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="s2">&quot;&lt;&lt;TreeviewSelect&gt;&gt;&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">retrieve_data</span><span class="p">)</span>
+
+        <span class="c1"># Configure scroll-bar</span>
+        <span class="n">tree_scroll</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">command</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">my_tree</span><span class="o">.</span><span class="n">yview</span><span class="p">)</span>
+
+        <span class="c1"># Define columns</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">my_tree</span><span class="p">[</span><span class="s1">&#39;columns&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;Nombre&#39;</span><span class="p">,</span> <span class="s1">&#39;Apellido&#39;</span><span class="p">,</span> <span class="s1">&#39;DNI&#39;</span><span class="p">,</span> <span class="s2">&quot;Area&quot;</span><span class="p">,</span> <span class="s2">&quot;Cargo&quot;</span><span class="p">,</span> <span class="s1">&#39;Sueldo bruto&#39;</span><span class="p">,</span> <span class="s2">&quot;Antiguedad&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Create headings</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">my_tree</span><span class="o">.</span><span class="n">column</span><span class="p">(</span><span class="s1">&#39;#0&#39;</span><span class="p">,</span> <span class="n">anchor</span><span class="o">=</span><span class="n">CENTER</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">77</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">my_tree</span><span class="o">.</span><span class="n">column</span><span class="p">(</span><span class="s1">&#39;Nombre&#39;</span><span class="p">,</span> <span class="n">anchor</span><span class="o">=</span><span class="n">W</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">117</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">my_tree</span><span class="o">.</span><span class="n">column</span><span class="p">(</span><span class="s1">&#39;Apellido&#39;</span><span class="p">,</span> <span class="n">anchor</span><span class="o">=</span><span class="n">W</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">117</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">my_tree</span><span class="o">.</span><span class="n">column</span><span class="p">(</span><span class="s1">&#39;DNI&#39;</span><span class="p">,</span> <span class="n">anchor</span><span class="o">=</span><span class="n">CENTER</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">117</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">my_tree</span><span class="o">.</span><span class="n">column</span><span class="p">(</span><span class="s1">&#39;Area&#39;</span><span class="p">,</span> <span class="n">anchor</span><span class="o">=</span><span class="n">W</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">157</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">my_tree</span><span class="o">.</span><span class="n">column</span><span class="p">(</span><span class="s1">&#39;Cargo&#39;</span><span class="p">,</span> <span class="n">anchor</span><span class="o">=</span><span class="n">W</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">117</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">my_tree</span><span class="o">.</span><span class="n">column</span><span class="p">(</span><span class="s1">&#39;Sueldo bruto&#39;</span><span class="p">,</span> <span class="n">anchor</span><span class="o">=</span><span class="n">CENTER</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">117</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">my_tree</span><span class="o">.</span><span class="n">column</span><span class="p">(</span><span class="s1">&#39;Antiguedad&#39;</span><span class="p">,</span> <span class="n">anchor</span><span class="o">=</span><span class="n">CENTER</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">117</span><span class="p">)</span>
+
+        <span class="c1"># Configure headings</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">my_tree</span><span class="o">.</span><span class="n">heading</span><span class="p">(</span><span class="s1">&#39;#0&#39;</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s1">&#39;ID&#39;</span><span class="p">,</span> <span class="n">anchor</span><span class="o">=</span><span class="n">CENTER</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">my_tree</span><span class="o">.</span><span class="n">heading</span><span class="p">(</span><span class="s1">&#39;Nombre&#39;</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s1">&#39;Nombre&#39;</span><span class="p">,</span> <span class="n">anchor</span><span class="o">=</span><span class="n">W</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">my_tree</span><span class="o">.</span><span class="n">heading</span><span class="p">(</span><span class="s1">&#39;Apellido&#39;</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s1">&#39;Apellido&#39;</span><span class="p">,</span> <span class="n">anchor</span><span class="o">=</span><span class="n">W</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">my_tree</span><span class="o">.</span><span class="n">heading</span><span class="p">(</span><span class="s1">&#39;DNI&#39;</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s1">&#39;DNI&#39;</span><span class="p">,</span> <span class="n">anchor</span><span class="o">=</span><span class="n">CENTER</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">my_tree</span><span class="o">.</span><span class="n">heading</span><span class="p">(</span><span class="s1">&#39;Area&#39;</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s1">&#39;Area&#39;</span><span class="p">,</span> <span class="n">anchor</span><span class="o">=</span><span class="n">W</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">my_tree</span><span class="o">.</span><span class="n">heading</span><span class="p">(</span><span class="s1">&#39;Cargo&#39;</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s1">&#39;Cargo&#39;</span><span class="p">,</span> <span class="n">anchor</span><span class="o">=</span><span class="n">W</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">my_tree</span><span class="o">.</span><span class="n">heading</span><span class="p">(</span><span class="s1">&#39;Sueldo bruto&#39;</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s1">&#39;Sueldo bruto&#39;</span><span class="p">,</span> <span class="n">anchor</span><span class="o">=</span><span class="n">CENTER</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">my_tree</span><span class="o">.</span><span class="n">heading</span><span class="p">(</span><span class="s1">&#39;Antiguedad&#39;</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s1">&#39;Antiguedad&#39;</span><span class="p">,</span> <span class="n">anchor</span><span class="o">=</span><span class="n">CENTER</span><span class="p">)</span>
+
+        <span class="c1"># Create strip rows</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">my_tree</span><span class="o">.</span><span class="n">tag_configure</span><span class="p">(</span><span class="s2">&quot;oddrow&quot;</span><span class="p">,</span> <span class="n">background</span><span class="o">=</span><span class="s2">&quot;snow&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">my_tree</span><span class="o">.</span><span class="n">tag_configure</span><span class="p">(</span><span class="s2">&quot;evenrow&quot;</span><span class="p">,</span> <span class="n">background</span><span class="o">=</span><span class="s2">&quot;AliceBlue&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Add data frame</span>
+        <span class="n">data_frame</span> <span class="o">=</span> <span class="n">LabelFrame</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Carga de datos&quot;</span><span class="p">)</span>
+        <span class="n">data_frame</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="n">fill</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="n">expand</span><span class="o">=</span><span class="s2">&quot;yes&quot;</span><span class="p">,</span> <span class="n">padx</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+        <span class="n">button_frame</span> <span class="o">=</span> <span class="n">LabelFrame</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Comandos&quot;</span><span class="p">)</span>
+        <span class="n">button_frame</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="n">fill</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="n">expand</span><span class="o">=</span><span class="s2">&quot;yes&quot;</span><span class="p">,</span> <span class="n">padx</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+
+        <span class="c1"># Set variables</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nombre</span> <span class="o">=</span> <span class="n">StringVar</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">apellido</span> <span class="o">=</span> <span class="n">StringVar</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dni</span> <span class="o">=</span> <span class="n">StringVar</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">area</span> <span class="o">=</span> <span class="n">StringVar</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cargo</span> <span class="o">=</span> <span class="n">StringVar</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sueldo</span> <span class="o">=</span> <span class="n">StringVar</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">anti</span> <span class="o">=</span> <span class="n">StringVar</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">selected_id</span> <span class="o">=</span> <span class="n">IntVar</span><span class="p">()</span>
+
+        <span class="c1"># Labels and entries</span>
+        <span class="n">id_label</span> <span class="o">=</span> <span class="n">Label</span><span class="p">(</span><span class="n">data_frame</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;ID&quot;</span><span class="p">)</span>
+        <span class="n">id_label</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">padx</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">pady</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="n">E</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">id_entry</span> <span class="o">=</span> <span class="n">Entry</span><span class="p">(</span><span class="n">data_frame</span><span class="p">,</span> <span class="n">textvariable</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">selected_id</span><span class="p">,</span> <span class="n">state</span><span class="o">=</span><span class="s2">&quot;disabled&quot;</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">22</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">id_entry</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">padx</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">pady</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+
+        <span class="n">nombre_label</span> <span class="o">=</span> <span class="n">Label</span><span class="p">(</span><span class="n">data_frame</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Nombre&quot;</span><span class="p">)</span>
+        <span class="n">nombre_label</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">padx</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">pady</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="n">E</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nombre_entry</span> <span class="o">=</span> <span class="n">Entry</span><span class="p">(</span><span class="n">data_frame</span><span class="p">,</span> <span class="n">textvariable</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">nombre</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">22</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nombre_entry</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">padx</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">pady</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+
+        <span class="n">apellido_label</span> <span class="o">=</span> <span class="n">Label</span><span class="p">(</span><span class="n">data_frame</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Apellido&quot;</span><span class="p">)</span>
+        <span class="n">apellido_label</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">padx</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">pady</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="n">E</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">apellido_entry</span> <span class="o">=</span> <span class="n">Entry</span><span class="p">(</span><span class="n">data_frame</span><span class="p">,</span> <span class="n">textvariable</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">apellido</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">22</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">apellido_entry</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">padx</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">pady</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+
+        <span class="n">dni_label</span> <span class="o">=</span> <span class="n">Label</span><span class="p">(</span><span class="n">data_frame</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;DNI&quot;</span><span class="p">)</span>
+        <span class="n">dni_label</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">padx</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">pady</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="n">E</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dni_entry</span> <span class="o">=</span> <span class="n">Entry</span><span class="p">(</span><span class="n">data_frame</span><span class="p">,</span> <span class="n">textvariable</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dni</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">22</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dni_entry</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">padx</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">pady</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+
+        <span class="n">area_label</span> <span class="o">=</span> <span class="n">Label</span><span class="p">(</span><span class="n">data_frame</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Area&quot;</span><span class="p">)</span>
+        <span class="n">area_label</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">padx</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">pady</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="n">E</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">area_entry</span> <span class="o">=</span> <span class="n">Entry</span><span class="p">(</span><span class="n">data_frame</span><span class="p">,</span> <span class="n">textvariable</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">area</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">22</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">area_entry</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">padx</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">pady</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+
+        <span class="n">cargo_label</span> <span class="o">=</span> <span class="n">Label</span><span class="p">(</span><span class="n">data_frame</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Cargo&quot;</span><span class="p">)</span>
+        <span class="n">cargo_label</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">padx</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">pady</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="n">E</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cargo_entry</span> <span class="o">=</span> <span class="n">Entry</span><span class="p">(</span><span class="n">data_frame</span><span class="p">,</span> <span class="n">textvariable</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cargo</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">22</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cargo_entry</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">padx</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">pady</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+
+        <span class="n">sueldo_label</span> <span class="o">=</span> <span class="n">Label</span><span class="p">(</span><span class="n">data_frame</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Sueldo bruto&quot;</span><span class="p">)</span>
+        <span class="n">sueldo_label</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">padx</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">pady</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="n">E</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sueldo_entry</span> <span class="o">=</span> <span class="n">Entry</span><span class="p">(</span><span class="n">data_frame</span><span class="p">,</span> <span class="n">textvariable</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">sueldo</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">22</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sueldo_entry</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">padx</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">pady</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+
+        <span class="n">anti_label</span> <span class="o">=</span> <span class="n">Label</span><span class="p">(</span><span class="n">data_frame</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Antiguedad&quot;</span><span class="p">)</span>
+        <span class="n">anti_label</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">padx</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">pady</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="n">E</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">anti_entry</span> <span class="o">=</span> <span class="n">Entry</span><span class="p">(</span><span class="n">data_frame</span><span class="p">,</span> <span class="n">textvariable</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">anti</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">22</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">anti_entry</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">padx</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">pady</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+
+        <span class="c1"># Buttons</span>
+        <span class="n">request_employee_button</span> <span class="o">=</span> <span class="n">Button</span><span class="p">(</span><span class="n">button_frame</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Consultar&quot;</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span> <span class="n">command</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">request_employees</span><span class="p">)</span>
+        <span class="n">request_employee_button</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">padx</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">pady</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+
+        <span class="n">create_employee_button</span> <span class="o">=</span> <span class="n">Button</span><span class="p">(</span><span class="n">button_frame</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Crear&quot;</span><span class="p">,</span> <span class="n">fg</span><span class="o">=</span><span class="s2">&quot;white&quot;</span><span class="p">,</span> <span class="n">bg</span><span class="o">=</span><span class="s2">&quot;aquamarine4&quot;</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span> <span class="n">command</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">create_employee</span><span class="p">)</span>
+        <span class="n">create_employee_button</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">padx</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">pady</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+
+        <span class="n">modify_employee_button</span> <span class="o">=</span> <span class="n">Button</span><span class="p">(</span><span class="n">button_frame</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Modificar&quot;</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span> <span class="n">command</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">modify_employee</span><span class="p">)</span>
+        <span class="n">modify_employee_button</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">padx</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">pady</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+
+        <span class="n">erase_employee_button</span> <span class="o">=</span> <span class="n">Button</span><span class="p">(</span><span class="n">button_frame</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Eliminar fila&quot;</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span> <span class="n">command</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">erase_employee</span><span class="p">)</span>
+        <span class="n">erase_employee_button</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">padx</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">pady</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+
+        <span class="n">erase_all_button</span> <span class="o">=</span> <span class="n">Button</span><span class="p">(</span><span class="n">button_frame</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Eliminar tabla&quot;</span><span class="p">,</span> <span class="n">fg</span><span class="o">=</span><span class="s2">&quot;white&quot;</span><span class="p">,</span> <span class="n">bg</span><span class="o">=</span><span class="s2">&quot;brown3&quot;</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span> <span class="n">command</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">erase_all</span><span class="p">)</span>
+        <span class="n">erase_all_button</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">padx</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">pady</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+
+        <span class="n">reset_fields_button</span> <span class="o">=</span> <span class="n">Button</span><span class="p">(</span><span class="n">button_frame</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Limpiar campos&quot;</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span> <span class="n">command</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">reset_fields</span><span class="p">)</span>
+        <span class="n">reset_fields_button</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">padx</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">pady</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span> 
+
+        <span class="n">close_app_button</span> <span class="o">=</span> <span class="n">Button</span><span class="p">(</span><span class="n">button_frame</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Salir&quot;</span><span class="p">,</span> <span class="n">fg</span><span class="o">=</span><span class="s2">&quot;white&quot;</span><span class="p">,</span> <span class="n">bg</span><span class="o">=</span><span class="s2">&quot;dim gray&quot;</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span> <span class="n">command</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">close_app</span><span class="p">)</span>
+        <span class="n">close_app_button</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">padx</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">pady</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span> 
+
+ 
+<div class="viewcode-block" id="EmsView.update_row_in_treeview">
+<a class="viewcode-back" href="../../view.html#ems_prog.view.EmsView.update_row_in_treeview">[docs]</a>
+    <span class="k">def</span> <span class="nf">update_row_in_treeview</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">employee_id</span><span class="p">,</span> <span class="n">updated_values</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; </span>
+<span class="sd">        Update a specific row in the Treeview with new data.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Iterate through the Treeview items and find the one with the matching ID</span>
+        <span class="k">for</span> <span class="n">item_id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">my_tree</span><span class="o">.</span><span class="n">get_children</span><span class="p">():</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">my_tree</span><span class="o">.</span><span class="n">item</span><span class="p">(</span><span class="n">item_id</span><span class="p">,</span> <span class="s2">&quot;text&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="n">employee_id</span><span class="p">:</span>
+                <span class="c1"># Update the values of the row</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">my_tree</span><span class="o">.</span><span class="n">item</span><span class="p">(</span><span class="n">item_id</span><span class="p">,</span> <span class="n">values</span><span class="o">=</span><span class="n">updated_values</span><span class="p">)</span>
+                <span class="k">break</span></div>
+
+
+    
+<div class="viewcode-block" id="EmsView.delete_row_in_treeview">
+<a class="viewcode-back" href="../../view.html#ems_prog.view.EmsView.delete_row_in_treeview">[docs]</a>
+    <span class="k">def</span> <span class="nf">delete_row_in_treeview</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">employee_id</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Delete a specific row in the Treeview.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Iterate through the Treeview items and find the one with the matching ID</span>
+        <span class="k">for</span> <span class="n">item_id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">my_tree</span><span class="o">.</span><span class="n">get_children</span><span class="p">():</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">my_tree</span><span class="o">.</span><span class="n">item</span><span class="p">(</span><span class="n">item_id</span><span class="p">,</span> <span class="s2">&quot;text&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="n">employee_id</span><span class="p">:</span>
+                <span class="c1"># Delete the row</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">my_tree</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">item_id</span><span class="p">)</span>
+                <span class="k">break</span></div>
+
+
+
+<div class="viewcode-block" id="EmsView.request_employees">
+<a class="viewcode-back" href="../../view.html#ems_prog.view.EmsView.request_employees">[docs]</a>
+    <span class="k">def</span> <span class="nf">request_employees</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Queries and displays employees in the view.</span>
+
+<span class="sd">        Fetches employee records from the model and populates the tree view.</span>
+<span class="sd">        Handles OperationalError by showing an error message if no employees exist.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">my_tree</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">my_tree</span><span class="o">.</span><span class="n">get_children</span><span class="p">())</span>
+            <span class="n">employees</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">select_employee</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">employee</span> <span class="ow">in</span> <span class="n">employees</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">my_tree</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="n">employee</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">values</span><span class="o">=</span><span class="n">employee</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+        <span class="k">except</span> <span class="n">sqlite3</span><span class="o">.</span><span class="n">OperationalError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">messagebox</span><span class="o">.</span><span class="n">showerror</span><span class="p">(</span><span class="s2">&quot;Error&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Error querying employee: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="EmsView.create_employee">
+<a class="viewcode-back" href="../../view.html#ems_prog.view.EmsView.create_employee">[docs]</a>
+    <span class="k">def</span> <span class="nf">create_employee</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creates a new employee record in the database.</span>
+
+<span class="sd">        Validates input fields, shows error messages for invalid inputs or missing fields,</span>
+<span class="sd">        and inserts the new employee record into the database. Then updates the view and resets the input fields.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">nombre</span><span class="o">.</span><span class="n">get</span><span class="p">(),</span>
+                  <span class="bp">self</span><span class="o">.</span><span class="n">apellido</span><span class="o">.</span><span class="n">get</span><span class="p">(),</span>
+                  <span class="bp">self</span><span class="o">.</span><span class="n">dni</span><span class="o">.</span><span class="n">get</span><span class="p">(),</span>
+                  <span class="bp">self</span><span class="o">.</span><span class="n">area</span><span class="o">.</span><span class="n">get</span><span class="p">(),</span>
+                  <span class="bp">self</span><span class="o">.</span><span class="n">cargo</span><span class="o">.</span><span class="n">get</span><span class="p">(),</span>
+                  <span class="bp">self</span><span class="o">.</span><span class="n">sueldo</span><span class="o">.</span><span class="n">get</span><span class="p">(),</span>
+                  <span class="bp">self</span><span class="o">.</span><span class="n">anti</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+                  <span class="p">]</span>
+        <span class="n">error_message</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">controller</span><span class="o">.</span><span class="n">validate_fields</span><span class="p">(</span><span class="n">fields</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">error_message</span><span class="p">:</span>
+            <span class="n">messagebox</span><span class="o">.</span><span class="n">showerror</span><span class="p">(</span><span class="s2">&quot;Validation error:&quot;</span><span class="p">,</span> <span class="n">error_message</span><span class="p">)</span>
+            <span class="k">return</span>
+        
+        <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">field</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span> <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">fields</span><span class="p">):</span>
+            <span class="n">messagebox</span><span class="o">.</span><span class="n">showerror</span><span class="p">(</span><span class="s2">&quot;Error&quot;</span><span class="p">,</span> <span class="s2">&quot;Fields missing.&quot;</span><span class="p">)</span>
+            <span class="k">return</span>
+        
+        <span class="n">data</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nombre_entry</span><span class="o">.</span><span class="n">get</span><span class="p">(),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">apellido_entry</span><span class="o">.</span><span class="n">get</span><span class="p">(),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">dni_entry</span><span class="o">.</span><span class="n">get</span><span class="p">(),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">area_entry</span><span class="o">.</span><span class="n">get</span><span class="p">(),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">cargo_entry</span><span class="o">.</span><span class="n">get</span><span class="p">(),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">sueldo_entry</span><span class="o">.</span><span class="n">get</span><span class="p">(),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">anti_entry</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+                <span class="p">)</span>
+        <span class="n">new_employee_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">insert_employee</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="n">data_with_id</span> <span class="o">=</span> <span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">new_employee_id</span><span class="p">),)</span> <span class="o">+</span> <span class="n">data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">my_tree</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="n">data_with_id</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">values</span><span class="o">=</span><span class="n">data_with_id</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">request_employees</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reset_fields</span><span class="p">()</span>
+        <span class="n">record_info</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;New employee created: </span><span class="si">{</span><span class="n">data</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="n">send_data</span><span class="p">(</span><span class="n">record_info</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="EmsView.retrieve_data">
+<a class="viewcode-back" href="../../view.html#ems_prog.view.EmsView.retrieve_data">[docs]</a>
+    <span class="k">def</span> <span class="nf">retrieve_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Retrieves the data of a selected employee in the view.</span>
+
+<span class="sd">        Populates the input fields with the selected employee&#39;s data or shows an info message if no data is available.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">selected_rows</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">my_tree</span><span class="o">.</span><span class="n">selection</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">selected_rows</span><span class="p">:</span>
+            <span class="n">selected_row</span> <span class="o">=</span> <span class="n">selected_rows</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">my_tree</span><span class="o">.</span><span class="n">item</span><span class="p">(</span><span class="n">selected_row</span><span class="p">)</span>
+            <span class="n">row</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;values&quot;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">row</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">7</span><span class="p">:</span>  
+                <span class="bp">self</span><span class="o">.</span><span class="n">nombre</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">apellido</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">dni</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">area</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">cargo</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">4</span><span class="p">])</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">sueldo</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">5</span><span class="p">])</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">anti</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">6</span><span class="p">])</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">selected_id</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;text&quot;</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">messagebox</span><span class="o">.</span><span class="n">showinfo</span><span class="p">(</span><span class="s2">&quot;Selection&quot;</span><span class="p">,</span> <span class="s2">&quot;Selected row does not have the expected data.&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">pass</span></div>
+
+    
+
+<div class="viewcode-block" id="EmsView.modify_employee">
+<a class="viewcode-back" href="../../view.html#ems_prog.view.EmsView.modify_employee">[docs]</a>
+    <span class="k">def</span> <span class="nf">modify_employee</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Updates the data of a selected employee in the database.</span>
+
+<span class="sd">        Validates the new data, updates the employee record in the model, and refreshes the view.</span>
+<span class="sd">        Shows an info message upon successful update or an error message if no record is selected.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">selected_row</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">my_tree</span><span class="o">.</span><span class="n">focus</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">selected_row</span><span class="p">:</span>
+            <span class="n">messagebox</span><span class="o">.</span><span class="n">showerror</span><span class="p">(</span><span class="s2">&quot;Error&quot;</span><span class="p">,</span> <span class="s2">&quot;Select a record to update.&quot;</span><span class="p">)</span>
+            <span class="k">return</span>
+        
+        <span class="c1"># Retrieve data from the selected row</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">my_tree</span><span class="o">.</span><span class="n">item</span><span class="p">(</span><span class="n">selected_row</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s2">&quot;text&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;text&quot;</span><span class="p">]:</span>
+            <span class="n">messagebox</span><span class="o">.</span><span class="n">showerror</span><span class="p">(</span><span class="s2">&quot;Error&quot;</span><span class="p">,</span> <span class="s2">&quot;Could not get information for the selected record.&quot;</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="c1"># Retrieve the employee ID</span>
+        <span class="n">empleado_id</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;text&quot;</span><span class="p">]</span>
+        
+        <span class="n">new_data</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">nombre</span><span class="o">.</span><span class="n">get</span><span class="p">(),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">apellido</span><span class="o">.</span><span class="n">get</span><span class="p">(),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dni</span><span class="o">.</span><span class="n">get</span><span class="p">(),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">area</span><span class="o">.</span><span class="n">get</span><span class="p">(),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cargo</span><span class="o">.</span><span class="n">get</span><span class="p">(),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sueldo</span><span class="o">.</span><span class="n">get</span><span class="p">(),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">anti</span><span class="o">.</span><span class="n">get</span><span class="p">())</span>
+        
+        <span class="c1"># Validate the new data before updating</span>
+        <span class="n">error_message</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">controller</span><span class="o">.</span><span class="n">validate_fields</span><span class="p">(</span><span class="n">new_data</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">error_message</span><span class="p">:</span>
+            <span class="n">messagebox</span><span class="o">.</span><span class="n">showerror</span><span class="p">(</span><span class="s2">&quot;Validation Error&quot;</span><span class="p">,</span> <span class="n">error_message</span><span class="p">)</span>
+            <span class="k">return</span>
+        
+        <span class="c1"># Combine data for the update</span>
+        <span class="n">combined_data</span> <span class="o">=</span> <span class="n">new_data</span> <span class="o">+</span> <span class="p">(</span><span class="n">empleado_id</span><span class="p">,)</span>
+        <span class="c1"># Update the employee record in the model</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">update_employee</span><span class="p">(</span><span class="n">combined_data</span><span class="p">)</span>
+        <span class="c1"># Update the row in the Treeview</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_row_in_treeview</span><span class="p">(</span><span class="n">empleado_id</span><span class="p">,</span> <span class="n">new_data</span><span class="p">)</span>
+        <span class="c1"># Show an info message for a successful update</span>
+        <span class="n">messagebox</span><span class="o">.</span><span class="n">showinfo</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;Update&quot;</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&quot;Data updated successfully.&quot;</span><span class="p">)</span>
+        <span class="c1"># Reset input fields</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reset_fields</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="EmsView.erase_employee">
+<a class="viewcode-back" href="../../view.html#ems_prog.view.EmsView.erase_employee">[docs]</a>
+    <span class="k">def</span> <span class="nf">erase_employee</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Deletes a selected employee record from the database.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">selected_row</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">my_tree</span><span class="o">.</span><span class="n">focus</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">selected_row</span><span class="p">:</span>
+            <span class="c1"># Get the item ID (employee ID) from the selected row</span>
+            <span class="n">item_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">my_tree</span><span class="o">.</span><span class="n">item</span><span class="p">(</span><span class="n">selected_row</span><span class="p">,</span> <span class="s2">&quot;text&quot;</span><span class="p">)</span>            
+            <span class="c1"># Confirm deletion</span>
+            <span class="n">confirm</span> <span class="o">=</span> <span class="n">messagebox</span><span class="o">.</span><span class="n">askyesno</span><span class="p">(</span><span class="s2">&quot;Delete&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">CONFIRM_DELETE_ROW</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">confirm</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">delete_employee</span><span class="p">(</span><span class="n">item_id</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">delete_row_in_treeview</span><span class="p">(</span><span class="n">item_id</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">reset_fields</span><span class="p">()</span>
+                <span class="n">messagebox</span><span class="o">.</span><span class="n">showinfo</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;Deleting&quot;</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&quot;Record deleted&quot;</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="EmsView.erase_all">
+<a class="viewcode-back" href="../../view.html#ems_prog.view.EmsView.erase_all">[docs]</a>
+    <span class="k">def</span> <span class="nf">erase_all</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Deletes all employee records from the database.</span>
+
+<span class="sd">        Asks for confirmation before clearing all records, resets the view, and recreates the database table.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">alert</span> <span class="o">=</span> <span class="n">messagebox</span><span class="o">.</span><span class="n">askyesno</span><span class="p">(</span><span class="s2">&quot;Erase all&quot;</span><span class="p">,</span> <span class="s2">&quot;DB will be erased.</span><span class="se">\n</span><span class="s2">Press Yes to continue.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">alert</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">my_tree</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">my_tree</span><span class="o">.</span><span class="n">get_children</span><span class="p">())</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">delete_table</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">reset_fields</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">create_table</span><span class="p">()</span></div>
+
+            <span class="c1"># self.my_tree.delete(*self.my_tree.get_children())  # Limpia el Treeview</span>
+            <span class="c1"># self.model.delete_table()</span>
+            <span class="c1"># self.reset_fields()</span>
+            <span class="c1"># self.model.create_table()</span>
+
+
+<div class="viewcode-block" id="EmsView.reset_fields">
+<a class="viewcode-back" href="../../view.html#ems_prog.view.EmsView.reset_fields">[docs]</a>
+    <span class="k">def</span> <span class="nf">reset_fields</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Resets the input fields in the view to their default state.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nombre_entry</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">END</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">apellido_entry</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">END</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dni_entry</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">END</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">area_entry</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">END</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cargo_entry</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">END</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sueldo_entry</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">END</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">anti_entry</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">END</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="EmsView.close_app">
+<a class="viewcode-back" href="../../view.html#ems_prog.view.EmsView.close_app">[docs]</a>
+    <span class="k">def</span> <span class="nf">close_app</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Closes the application.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">destroy</span><span class="p">()</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Mabazz.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
